@@ -18,6 +18,7 @@
 </strong>
 
 <img src="‌Book.jpg" alt="BookImage" width="500"/>
+
 </div>
 
 ___
