@@ -44,5 +44,5 @@ This book is one of the best books for learning OpenGL with C++ programming lang
 <img src="‌Book.jpg" alt="BookImage" width="500"/>
 </center>
 
-##  تمام.
+## تمام.
 ## Done.
