@@ -19,11 +19,7 @@ GLFWwindow *createWindow(const char* title) {
     // Get the primary monitor
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
-    // Get the video mode of the monitor
-    // const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
     GLFWwindow *window = glfwCreateWindow(width, height, title, monitor, NULL);
-    // GLFWwindow *window = glfwCreateWindow(mode -> width, mode -> height, title, monitor, NULL);
 
     if(window == nullptr){
         std::cout << "Failed to create window" << std::endl;
