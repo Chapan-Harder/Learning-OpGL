@@ -18,7 +18,7 @@
 </strong>
 </div>
 
-<img dri="rtl" src="‌Book.jpg" alt="BookImage" width="500"/>
+<img src="‌Book.jpg" alt="BookImage" width="500"/>
 
 ___
 ### English👇
