@@ -17,6 +17,10 @@ GLboolean firstMouse = true;
 GLfloat lastX = 400.0, lastY = 300.0;
 GLfloat yaw = -90.0f, pitch = 0.0f, fov = 45.0f;
 
+void framebuffer_size_callback(GLFWwindow *window, GLint WIDTH, GLint HEIGHT){
+    glViewport(0, 0, WIDTH, HEIGHT);
+}
+
 GLFWwindow * createMyWindow(const char *title){
     GLint screenWidth, screenHeight;
 
@@ -25,7 +29,7 @@ GLFWwindow * createMyWindow(const char *title){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // FOR MAC_OS
 
     GLFWmonitor *monitor = glfwGetPrimaryMonitor();
@@ -50,8 +54,7 @@ GLFWwindow * createMyWindow(const char *title){
         std::cout << "\tFailed to initionalize GLEW" << std::endl;
         return NULL;
     }
-    glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
-    glViewport(0, 0, screenWidth, screenHeight);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;
 }
