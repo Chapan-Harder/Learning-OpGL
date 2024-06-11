@@ -4,7 +4,7 @@
 void mouse_movement(GLFWwindow *window, GLdouble xpos, GLdouble ypos);
 
 // Screen Size Or Screen Resolution
-const GLint WIDTH = 720, HEIGHT = 405;
+const GLint WIDTH = 720, HEIGHT = 480;
 // const GLint WIDTH = 1920, HEIGHT = 1080;
 
 // Camera

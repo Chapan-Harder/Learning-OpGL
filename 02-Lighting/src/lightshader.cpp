@@ -1,15 +1,15 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef LIGHTSHADER_H
+#define LIGHTSHADER_H
 
 #include "includes.h"
 
-class Shader
+class LightShader
 {
 public:
     unsigned int ID;
     
     // Constructor that builds the shader program from predefined source strings
-    Shader()
+    LightShader()
     {
         const GLchar *vertexShaderSource = R"(
         #version 330 core
@@ -25,11 +25,9 @@ public:
         const GLchar *fragmentShaderSource = R"(
         #version 330 core
         out vec4 FragColor;
-        uniform vec3 objectColor;
-        uniform vec3 lightColor;
         void main()
         {
-            FragColor = vec4(lightColor * objectColor, 1.0f);
+            FragColor = vec4(1.0f);
         })";
 
         // 2. compile shaders
