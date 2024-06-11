@@ -14,22 +14,49 @@ public:
         const GLchar *vertexShaderSource = R"(
         #version 330 core
         layout (location = 0) in vec3 position;
+        layout (location = 1) in vec3 normal;
+        layout (location = 2) in vec2 textureCoord;
+
+        out vec3 FragPosition;
+        out vec3 Normal;
+        out vec2 TextureCoord;
+
         uniform mat4 model;
         uniform mat4 view;
         uniform mat4 projection;
+
         void main()
         {
             gl_Position = projection * view * model * vec4(position, 1.0f);
+            FragPosition = vec3(model * vec4(position, 1.0f));
+            TextureCoord = textureCoord;
+            Normal = mat3(transpose(inverse(model))) * normal;
         })";
 
         const GLchar *fragmentShaderSource = R"(
         #version 330 core
         out vec4 FragColor;
-        uniform vec3 objectColor;
+
+        in vec3 FragPosition;
+        in vec3 Normal;
+        in vec2 TextureCoord;
+
+        uniform sampler2D ourTexture;
+        uniform vec3 lightPosition;
         uniform vec3 lightColor;
+
         void main()
         {
-            FragColor = vec4(lightColor * objectColor, 1.0f);
+            float ambientStrength = 0.1;
+            vec3 ambient = ambientStrength * lightColor;
+
+            vec3 norm = normalize(Normal);
+            vec3 lightDir = normalize(lightPosition - FragPosition);
+            float diff = max(dot(norm, lightDir), 0.0);
+            vec3 diffuse = diff * lightColor;
+
+            vec3 result = (ambient + diffuse);
+            FragColor = texture(ourTexture, TextureCoord) * vec4(result, 1.0f);
         })";
 
         // 2. compile shaders

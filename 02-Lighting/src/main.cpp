@@ -20,48 +20,48 @@ int main(){
 
     // Make The Triangle Section
     GLfloat vertices[] = {
-        // Positions
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, 0.5f, -0.5f, 
-         0.5f, 0.5f, -0.5f, 
-        -0.5f, 0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f,
+        // Positions                // Normals              // Texture Coordinates
+        -0.5f, -0.5f, -0.5f,        0.0f, 0.0f, -1.0f,      0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,        0.0f, 0.0f, -1.0f,      1.0f, 0.0f,
+         0.5f, 0.5f, -0.5f,         0.0f, 0.0f, -1.0f,      1.0f, 1.0f,
+         0.5f, 0.5f, -0.5f,         0.0f, 0.0f, -1.0f,      1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f,         0.0f, 0.0f, -1.0f,      0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,        0.0f, 0.0f, -1.0f,      0.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, -0.5f,        0.0f, -1.0, 0.0f,       1.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f,         0.0f, -1.0, 0.0f,       1.0f, 0.0f,
+         0.5f, -0.5f, 0.5f,         0.0f, -1.0, 0.0f,       0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,        0.0f, -1.0, 0.0f,       1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,        0.0f, -1.0, 0.0f,       0.0f, 1.0f,
+         0.5f, -0.5f, 0.5f,         0.0f, -1.0, 0.0f,       0.0f, 0.0f,
 
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,        1.0f, 0.0f, 0.0f,       0.0f, 0.0f,
+         0.5f, -0.5f, 0.5f,         1.0f, 0.0f, 0.0f,       1.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,          1.0f, 0.0f, 0.0f,       1.0f, 1.0f,
+         0.5f, 0.5f, 0.5f,          1.0f, 0.0f, 0.0f,       1.0f, 1.0f,
+         0.5f, 0.5f, -0.5f,         1.0f, 0.0f, 0.0f,       0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,        1.0f, 0.0f, 0.0f,       0.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,        -1.0f, 0.0f, 0.0f,      0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f,         -1.0f, 0.0f, 0.0f,      1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,          -1.0f, 0.0f, 0.0f,      1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f,          -1.0f, 0.0f, 0.0f,      1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f,         -1.0f, 0.0f, 0.0f,      0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,        -1.0f, 0.0f, 0.0f,      0.0f, 0.0f,
 
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,         0.0f, 1.0f, 0.0f,       0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,          0.0f, 1.0f, 0.0f,       1.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,          0.0f, 1.0f, 0.0f,       1.0f, 1.0f,
+         0.5f, 0.5f, 0.5f,          0.0f, 1.0f, 0.0f,       1.0f, 1.0f,
+         0.5f, 0.5f, -0.5f,         0.0f, 1.0f, 0.0f,       0.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f,         0.0f, 1.0f, 0.0f,       0.0f, 0.0f,
 
-        -0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f,         0.0f, 0.0f, 1.0f,       0.0f, 0.0f,
+         0.5f, -0.5f, 0.5f,         0.0f, 0.0f, 1.0f,       1.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,          0.0f, 0.0f, 1.0f,       1.0f, 1.0f,
+         0.5f, 0.5f, 0.5f,          0.0f, 0.0f, 1.0f,       1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f,          0.0f, 0.0f, 1.0f,       0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f,         0.0f, 0.0f, 1.0f,       0.0f, 0.0f,
     };
 
     GLuint VBO, meshVAO;
@@ -73,18 +73,52 @@ int main(){
 
     glBindVertexArray(meshVAO);
 
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+    // Position Attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)0);
     glEnableVertexAttribArray(0);
 
-    unsigned int lightCubeVAO;
+    // Normal Attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    // Texture Attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) (6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // load and generate the texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // set the texture wrapping/filtering options (on currently bound texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    GLint width, height, nrChannels;
+    GLubyte *data = stbi_load("Blue ground test.jpg", &width, &height, &nrChannels, 0);
+
+    if(data){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else{
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    // -----------------------------------------------------------------------------------------------------------------
+
+    GLuint lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
 
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     while (!glfwWindowShouldClose(window)){
@@ -100,7 +134,6 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         lightingShader.use();
-        lightingShader.setVec3("objectColor", 0.0f, 1.0f, 1.0f);
         lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
 
         // Create Transformations For Cube
@@ -120,6 +153,7 @@ int main(){
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("model", model);
+        lightingShader.setVec3("lightPosition", lightPosition);
 
         // Render The Cube
         // --------------------------
@@ -133,7 +167,7 @@ int main(){
         lightCubeShader.setMat4("view", view);
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPosition);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        model = glm::scale(model, glm::vec3(0.1f)); // Make The Smaler Cube
         lightCubeShader.setMat4("model", model);
         // --------------------------
 
