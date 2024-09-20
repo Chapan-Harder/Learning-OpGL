@@ -2,7 +2,6 @@
 #include "includes.h"
 #include "window.cpp"
 #include "shader.cpp"
-#include "lightshader.cpp"
 
 // lighting
 glm::vec3 lightPosition(0.6f, 0.6f, 0.6f);
@@ -15,8 +14,8 @@ int main(){
     GLFWwindow *window = createMyWindow("(---Chapan Harder Window---)");
 
     // Calling The Shader Section
-    Shader lightingShader;
-    LightShader lightCubeShader;
+    Shader lightingShader("basic_lighting.vs", "basic_lighting.fs");
+    Shader lightCubeShader("light_cube.vs", "light_cube.fs");
 
     // Make The Triangle Section
     GLfloat vertices[] = {
@@ -133,8 +132,8 @@ int main(){
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightingShader.use();
-        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        lightCubeShader.use();
+        lightCubeShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
 
         // Create Transformations For Cube
         GLfloat timeValue = glfwGetTime();
@@ -150,10 +149,10 @@ int main(){
         // Create The View Transformations
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::lookAt(cameraPose, cameraPose + cameraFront, cameraUp);
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
-        lightingShader.setMat4("model", model);
-        lightingShader.setVec3("lightPosition", lightPosition);
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
+        lightCubeShader.setMat4("model", model);
+        lightCubeShader.setVec3("lightPosition", lightPosition);
 
         // Render The Cube
         // --------------------------
@@ -162,13 +161,13 @@ int main(){
 
         // Also Draw The Lamp Object
         // --------------------------
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
+        lightingShader.use();
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPosition);
         model = glm::scale(model, glm::vec3(0.1f)); // Make The Smaler Cube
-        lightCubeShader.setMat4("model", model);
+        lightingShader.setMat4("model", model);
         // --------------------------
 
         glBindVertexArray(lightCubeVAO);
