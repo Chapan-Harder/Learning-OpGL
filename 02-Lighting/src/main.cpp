@@ -2,9 +2,11 @@
 #include "includes.h"
 #include "window.cpp"
 #include "shader.cpp"
+#include <cmath>
+#include <glm/ext/matrix_transform.hpp>
 
 // lighting
-glm::vec3 lightPosition(0.6f, 0.6f, 0.6f);
+// glm::vec3 lightPosition(0.6f, 0.6f, 0.6f);
 
 GLfloat deltaTime = 0.0f; // Time between current frame and last frame
 GLfloat lastFrame = 0.0f; // Time of last frame
@@ -128,50 +130,74 @@ int main(){
         // Action Buttons
         camera_and_window_action(window, deltaTime);
 
-        glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightCubeShader.use();
-        lightCubeShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-
         // Create Transformations For Cube
+        // --------------------------
         GLfloat timeValue = glfwGetTime();
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(1.0, 1.0, 1.0));
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, timeValue * 0.5f, glm::vec3(0.0f, 0.0f, 1.0f));
+        // --------------------------
+
+        // Light Location
+        // --------------------------
+        // Define your variables
+        GLfloat radius = 1.5f; // Distance from the center
+        GLfloat speed = 1.0f; // Speed of rotation
+
+        // Calculate the new position for the light cube
+        GLfloat x = radius * cos(speed * timeValue); // X position based on cosine
+        GLfloat z = radius * sin(speed * timeValue); // Z position based on sine
+        glm::vec3 lightPosition(x, 0.8f, z); // Update light position
+        // --------------------------
 
         // Create The Projection Matrix
+        // --------------------------
         glm::mat4 projection;
         projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
         // Create The View Transformations
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::lookAt(cameraPose, cameraPose + cameraFront, cameraUp);
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-        lightCubeShader.setMat4("model", model);
-        lightCubeShader.setVec3("lightPosition", lightPosition);
+        // --------------------------
+
+        // Draw Mesh Shader
+        // --------------------------
+        lightingShader.use();
+        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model);
+        lightingShader.setVec3("lightPosition", lightPosition);
+        lightingShader.setVec3("viewPosition", cameraPose);
+        // --------------------------
 
         // Render The Cube
         // --------------------------
         glBindVertexArray(meshVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        // --------------------------
 
         // Also Draw The Lamp Object
         // --------------------------
-        lightingShader.use();
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPosition);
         model = glm::scale(model, glm::vec3(0.1f)); // Make The Smaler Cube
-        lightingShader.setMat4("model", model);
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
+        lightCubeShader.setMat4("model", model);
         // --------------------------
 
+        // Render The Cube
+        // --------------------------
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        // --------------------------
 
         glfwSwapBuffers(window);
         glfwPollEvents();
