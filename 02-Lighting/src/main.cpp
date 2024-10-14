@@ -2,8 +2,6 @@
 #include "includes.h"
 #include "window.cpp"
 #include "shader.cpp"
-#include <cmath>
-#include <glm/ext/matrix_transform.hpp>
 
 // lighting
 // glm::vec3 lightPosition(0.6f, 0.6f, 0.6f);
@@ -169,11 +167,17 @@ int main(){
         // --------------------------
         lightingShader.use();
         lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightPosition", lightPosition);
+        lightingShader.setVec3("viewPosition", cameraPose);
+
+        lightingShader.setVec3("material.ambient", 0.1f, 0.1f, 0.1f);
+        lightingShader.setVec3("material.diffuse", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("material.specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("material.shininess", 32.0f);
+        // view/projection transformations
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("model", model);
-        lightingShader.setVec3("lightPosition", lightPosition);
-        lightingShader.setVec3("viewPosition", cameraPose);
         // --------------------------
 
         // Render The Cube
