@@ -3,6 +3,8 @@
 #include "window.cpp"
 #include "shader.cpp"
 
+GLuint loadTexture(GLchar const * path);
+
 // lighting
 // glm::vec3 lightPosition(0.6f, 0.6f, 0.6f);
 
@@ -86,28 +88,8 @@ int main(){
 
     // -----------------------------------------------------------------------------------------------------------------
     // load and generate the texture
-    GLuint texture;
-    glGenTextures(1, &texture);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // set the texture wrapping/filtering options (on currently bound texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    GLint width, height, nrChannels;
-    GLubyte *data = stbi_load("Blue ground test.jpg", &width, &height, &nrChannels, 0);
-
-    if(data){
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else{
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    GLuint diffuseMap = loadTexture("container2.jpg");
+    GLuint specularMap = loadTexture("container2_specular.jpg");
     // -----------------------------------------------------------------------------------------------------------------
 
     GLuint lightCubeVAO;
@@ -166,13 +148,15 @@ int main(){
         // Draw Mesh Shader
         // --------------------------
         lightingShader.use();
-        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("lightPosition", lightPosition);
+        lightingShader.setInt("material.diffuse", 0);
+        lightingShader.setInt("material.specular", 1);
+        lightingShader.setVec3("light.position", lightPosition);
         lightingShader.setVec3("viewPosition", cameraPose);
 
-        lightingShader.setVec3("material.ambient", 0.1f, 0.1f, 0.1f);
-        lightingShader.setVec3("material.diffuse", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("material.specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
         lightingShader.setFloat("material.shininess", 32.0f);
         // view/projection transformations
         lightingShader.setMat4("projection", projection);
@@ -180,6 +164,12 @@ int main(){
         lightingShader.setMat4("model", model);
         // --------------------------
 
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
         // Render The Cube
         // --------------------------
         glBindVertexArray(meshVAO);
@@ -210,4 +200,40 @@ int main(){
     glfwTerminate();
 
     return 0;
+}
+
+GLuint loadTexture(GLchar const * path) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    GLint width, height, nrComponents;
+    GLboolean *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }

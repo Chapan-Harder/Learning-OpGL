@@ -30,7 +30,7 @@ target_link_libraries(Lighting
 
 # Copy shader files and others file to the build directory
 file(COPY shaders/ DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/Resources/Images/Blue\ ground\ test.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY src/Resources/Images/ DESTINATION ${CMAKE_BINARY_DIR})
 
 #Includes the folder
 include_directories(${PROJECT_SOURCE_DIR}/include/)
