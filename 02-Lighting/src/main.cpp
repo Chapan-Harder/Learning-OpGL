@@ -65,6 +65,19 @@ int main(){
         -0.5f, -0.5f, 0.5f,         0.0f, 0.0f, 1.0f,       0.0f, 0.0f,
     };
 
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -1.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-3.3f,  1.0f, -1.5f)
+    };
+
     GLuint VBO, meshVAO;
     glGenVertexArrays(1, &meshVAO);
     glGenBuffers(1, &VBO);
@@ -114,15 +127,8 @@ int main(){
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Create Transformations For Cube
-        // --------------------------
         GLfloat timeValue = glfwGetTime();
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(1.0, 1.0, 1.0));
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, timeValue * 0.5f, glm::vec3(0.0f, 0.0f, 1.0f));
-        // --------------------------
 
         // Light Location
         // --------------------------
@@ -148,9 +154,9 @@ int main(){
         // Draw Mesh Shader
         // --------------------------
         lightingShader.use();
+        lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
         lightingShader.setInt("material.diffuse", 0);
         lightingShader.setInt("material.specular", 1);
-        lightingShader.setVec3("light.position", lightPosition);
         lightingShader.setVec3("viewPosition", cameraPose);
 
         lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
@@ -164,33 +170,49 @@ int main(){
         lightingShader.setMat4("model", model);
         // --------------------------
 
+
         // bind diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         // bind specular map
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
+
         // Render The Cube
         // --------------------------
         glBindVertexArray(meshVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // Create Transformations For Cube
         // --------------------------
+        for (GLuint i = 0; i < 10; i++) {
+            model = glm::translate(model, cubePositions[i]);
+            GLfloat angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            
+            // Create Transformations
+            model = glm::translate(model, glm::vec3(0.0, 0.0, sin(timeValue * 3.0f) / 2.0f));
+
+            lightingShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        // --------------------------
+        // --------------------------
+
 
         // Also Draw The Lamp Object
         // --------------------------
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPosition);
-        model = glm::scale(model, glm::vec3(0.1f)); // Make The Smaler Cube
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-        lightCubeShader.setMat4("model", model);
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, lightPosition);
+        // model = glm::scale(model, glm::vec3(0.1f)); // Make The Smaler Cube
+        // lightCubeShader.use();
+        // lightCubeShader.setMat4("projection", projection);
+        // lightCubeShader.setMat4("view", view);
+        // lightCubeShader.setMat4("model", model);
         // --------------------------
 
         // Render The Cube
         // --------------------------
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glBindVertexArray(lightCubeVAO);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
         // --------------------------
 
         glfwSwapBuffers(window);
