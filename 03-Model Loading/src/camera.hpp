@@ -7,13 +7,15 @@ enum Camera_Movement {
   FORWARD,
   BACKWARD,
   LEFT,
-  RIGHT
+  RIGHT,
+  UP,
+  DOWN
 };
 
 // Default camera values
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
-const GLfloat SPEED = 0.1f;
+const GLfloat SPEED = 0.5f;
 const GLfloat SENSITIVITY = 0.1f;
 const GLfloat ZOOM = 45.0f;
 
@@ -68,13 +70,14 @@ public:
 
 private:
   void updateCameraVectors() {
-    // calculate the new Front vector
+    // Calculate new Front vector
     glm::vec3 front;
     front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw));
+    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    Front = glm::normalize(front);
 
-    // also re-calculate the Right and Up vector
+    // Also re-calculate Right and Up vectors
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up = glm::normalize(glm::cross(Right, Front));
   }
@@ -90,6 +93,10 @@ void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
     Position -= Right * velocity;
   if (direction == RIGHT)
     Position += Right * velocity;
+  if (direction == UP)
+    Position += Up * velocity;
+  if (direction == DOWN)
+    Position -= Up * velocity;
 }
 
 void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true) {

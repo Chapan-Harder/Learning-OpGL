@@ -5,6 +5,14 @@ project(Model_Loading.cm VERSION 0.2.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# C standard settings (kept for any C dependencies)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# Build settings
+set(CMAKE_BUILD_TYPE Debug)
+add_compile_options(-Wall -Wextra -pedantic)
+
 # Set the policy to suppress the warning
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
@@ -28,6 +36,7 @@ target_link_libraries(Model_Loading.cm
     OpenGL::GL
     GLEW::GLEW
     assimp::assimp
+    ${EXTRA_LIBS}
 )
 
 # Copy shader files and others file to the build directory
