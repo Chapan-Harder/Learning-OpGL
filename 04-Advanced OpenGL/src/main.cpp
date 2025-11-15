@@ -1,3 +1,4 @@
+#include "found_libs.hpp"
 #include "window.hpp"
 #include "style.c"
 #include "grid.hpp"
@@ -12,10 +13,13 @@ int main() {
   GLFWwindow * window = create_window.create_window("04-Advanced OpenGL");
 
   // Shader section
+  Shader ground("sh.vs", "sh.fs");
   Shader chapanBox("sh.vs", "sh.fs");
   Shader gridShader("grid.vs", "grid.fs");
+  Shader outLine("shaderSingleColor.vs", "shaderSingleColor.fs");
 
   // Load the models
+  Model loadGround((char *)"meshes/Ground.gltf");
   Model loadChapanBox((char *)"meshes/ChapanBox.gltf");
   Grid grid;
 
@@ -32,7 +36,8 @@ int main() {
   }
   struct nk_colorf bg_color = {0.05f, 0.05f, 0.1f, 1.0f};
   struct nk_colorf lt_color = {1.0f, 1.0f, 1.0f, 1.0f};
-  GLfloat lt_power = 1.0f;
+  GLfloat lt_power = 0.0f;
+  bool show_grid = true, show_ground = false;
   // --------------------------------------------------------------------------
 
   // Initialize camera with proper starting position
@@ -52,10 +57,14 @@ int main() {
     // Clear buffers
     glClearColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a);
     glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDepthFunc(GL_LESS);
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Ui sections
-    ui_setting(ctx, &bg_color, &lt_color, &lt_power);
+    ui_setting(ctx, &bg_color, &lt_color, &lt_power, &show_grid, &show_ground);
 
     // 3D rendering
     // ------------------------------------------------------------------------
@@ -65,19 +74,43 @@ int main() {
     glm::vec3 lightColor = glm::vec3(lt_color.r, lt_color.g, lt_color.b);
     GLfloat lightPower = lt_power;
     glm::vec3 viewPos = glm::vec3(camera.Position);
-    glm::mat4 gridModel = glm::mat4(1.0f);
     glm::mat4 chapanBoxModel = glm::mat4(1.0f);
 
     // Grid section
-    gridShader.use();
-    gridShader.setMat4("view", view);
-    gridShader.setMat4("projection", projection);
-    gridModel = glm::scale(gridModel, glm::vec3(0.1f));
-    gridShader.setMat4("model", gridModel);
-    gridShader.setVec4("color", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray grid lines
-    grid.Draw(gridShader);
+    if (show_grid == true) {
+      glm::mat4 gridModel = glm::mat4(1.0f);
+
+      gridShader.use();
+      gridShader.setMat4("view", view);
+      gridShader.setMat4("projection", projection);
+      gridModel = glm::scale(gridModel, glm::vec3(0.1f));
+      gridShader.setMat4("model", gridModel);
+      gridShader.setVec4("color", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray grid lines
+      grid.Draw(gridShader);
+    }
+
+    if (show_ground) {
+      // Gound section
+      glm::mat4 groundModel = glm::mat4(1.0f);
+
+      ground.use();
+      ground.setMat4("view", view);
+      ground.setMat4("projection", projection);
+      ground.setVec3("lightPos", lightPos);
+      ground.setVec3("lightColor", lightColor);
+      ground.setFloat("lightPower", lightPower);
+      ground.setVec3("viewPos", viewPos);
+      groundModel = glm::scale(groundModel, glm::vec3(0.3f));
+      groundModel = glm::translate(groundModel, glm::vec3(0.0f, -0.01f, 0.0f));
+      ground.setMat4("model", groundModel);
+      loadGround.Draw(ground);
+    }
 
     // Box section
+    // FIRST PASS: Draw normal box and write to stencil buffer
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+
     chapanBox.use();
     chapanBox.setMat4("view", view);
     chapanBox.setMat4("projection", projection);
@@ -89,6 +122,26 @@ int main() {
     chapanBoxModel = glm::translate(chapanBoxModel, glm::vec3(0.0f, 1.0f, 0.0f));
     chapanBox.setMat4("model", chapanBoxModel);
     loadChapanBox.Draw(chapanBox);
+
+    // SECOND PASS: Draw outline
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+    // OutLine color
+    outLine.use();
+    outLine.setMat4("view", view);
+    outLine.setMat4("projection", projection);
+
+    // Create scaled model for outline
+    glm::mat4 outlineModel = chapanBoxModel;
+    outlineModel = glm::scale(outlineModel, glm::vec3(1.05f)); // Slightly larger
+    outLine.setMat4("model", outlineModel);
+    loadChapanBox.Draw(outLine);
+    
+    // Reset stencil and depth test
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+    glEnable(GL_DEPTH_TEST);
     // ------------------------------------------------------------------------
 
     // Swap buffers
