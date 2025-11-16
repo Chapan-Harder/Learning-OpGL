@@ -36,8 +36,10 @@ int main() {
   }
   struct nk_colorf bg_color = {0.05f, 0.05f, 0.1f, 1.0f};
   struct nk_colorf lt_color = {1.0f, 1.0f, 1.0f, 1.0f};
+  struct nk_colorf out_line_color = {1.0f, 1.0f, 1.0f, 1.0f};
+  GLfloat out_line_scale = 0.0f;
   GLfloat lt_power = 0.0f;
-  bool show_grid = true, show_ground = false;
+  bool show_grid = true, show_ground = false, out_line_onoff = false;
   // --------------------------------------------------------------------------
 
   // Initialize camera with proper starting position
@@ -64,7 +66,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Ui sections
-    ui_setting(ctx, &bg_color, &lt_color, &lt_power, &show_grid, &show_ground);
+    ui_setting(ctx, &bg_color, &lt_color, &lt_power, &show_grid, &show_ground, &out_line_color, &out_line_scale, &out_line_onoff);
 
     // 3D rendering
     // ------------------------------------------------------------------------
@@ -106,42 +108,58 @@ int main() {
       loadGround.Draw(ground);
     }
 
-    // Box section
-    // FIRST PASS: Draw normal box and write to stencil buffer
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
+    if (out_line_onoff) {
+      // Box section
+      // FIRST PASS: Draw normal box and write to stencil buffer
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0xFF);
 
-    chapanBox.use();
-    chapanBox.setMat4("view", view);
-    chapanBox.setMat4("projection", projection);
-    chapanBox.setVec3("lightPos", lightPos);
-    chapanBox.setVec3("lightColor", lightColor);
-    chapanBox.setFloat("lightPower", lightPower);
-    chapanBox.setVec3("viewPos", viewPos);
-    chapanBoxModel = glm::scale(chapanBoxModel, glm::vec3(0.1f));
-    chapanBoxModel = glm::translate(chapanBoxModel, glm::vec3(0.0f, 1.0f, 0.0f));
-    chapanBox.setMat4("model", chapanBoxModel);
-    loadChapanBox.Draw(chapanBox);
+      chapanBox.use();
+      chapanBox.setMat4("view", view);
+      chapanBox.setMat4("projection", projection);
+      chapanBox.setVec3("lightPos", lightPos);
+      chapanBox.setVec3("lightColor", lightColor);
+      chapanBox.setFloat("lightPower", lightPower);
+      chapanBox.setVec3("viewPos", viewPos);
+      chapanBoxModel = glm::scale(chapanBoxModel, glm::vec3(0.1f));
+      chapanBoxModel = glm::translate(chapanBoxModel, glm::vec3(0.0f, 1.0f, 0.0f));
+      chapanBox.setMat4("model", chapanBoxModel);
+      loadChapanBox.Draw(chapanBox);
 
-    // SECOND PASS: Draw outline
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
-    // OutLine color
-    outLine.use();
-    outLine.setMat4("view", view);
-    outLine.setMat4("projection", projection);
+      // SECOND PASS: Draw outline
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+      glDisable(GL_DEPTH_TEST);
+      // OutLine color
+      outLine.use();
+      outLine.setMat4("view", view);
+      outLine.setMat4("projection", projection);
 
-    // Create scaled model for outline
-    glm::mat4 outlineModel = chapanBoxModel;
-    outlineModel = glm::scale(outlineModel, glm::vec3(1.05f)); // Slightly larger
-    outLine.setMat4("model", outlineModel);
-    loadChapanBox.Draw(outLine);
+      // Create scaled model for outline
+      glm::mat4 outlineModel = chapanBoxModel;
+      outlineModel = glm::scale(outlineModel, glm::vec3(1.0f + out_line_scale)); // Slightly larger
+      outLine.setMat4("model", outlineModel);
+      outLine.setVec3("color", glm::vec3(out_line_color.r, out_line_color.g, out_line_color.b));
+      loadChapanBox.Draw(outLine);
     
-    // Reset stencil and depth test
-    glStencilMask(0xFF);
-    glStencilFunc(GL_ALWAYS, 0, 0xFF);
-    glEnable(GL_DEPTH_TEST);
+      // Reset stencil and depth test
+      glStencilMask(0xFF);
+      glStencilFunc(GL_ALWAYS, 0, 0xFF);
+      glEnable(GL_DEPTH_TEST);
+    }
+    else {
+      chapanBox.use();
+      chapanBox.setMat4("view", view);
+      chapanBox.setMat4("projection", projection);
+      chapanBox.setVec3("lightPos", lightPos);
+      chapanBox.setVec3("lightColor", lightColor);
+      chapanBox.setFloat("lightPower", lightPower);
+      chapanBox.setVec3("viewPos", viewPos);
+      chapanBoxModel = glm::scale(chapanBoxModel, glm::vec3(0.1f));
+      chapanBoxModel = glm::translate(chapanBoxModel, glm::vec3(0.0f, 1.0f, 0.0f));
+      chapanBox.setMat4("model", chapanBoxModel);
+      loadChapanBox.Draw(chapanBox);
+    }
     // ------------------------------------------------------------------------
 
     // Swap buffers
