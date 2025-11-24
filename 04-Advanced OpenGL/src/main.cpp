@@ -1,9 +1,14 @@
 #include "found_libs.hpp"
+#include "shader.cpp"
 #include "window.hpp"
 #include "style.c"
 #include "grid.hpp"
 #include "model.hpp"
 #include "ui.cpp"
+#include <glm/ext/matrix_transform.hpp>
+#include <map>
+
+unsigned int loadTexture(char const * path);
 
 GLfloat deltaTime = 0.0f; // Time between current frame and last frame
 GLfloat lastFrame = 0.0f; // Time of last frame
@@ -17,11 +22,38 @@ int main() {
   Shader chapanBox("sh.vs", "sh.fs");
   Shader gridShader("grid.vs", "grid.fs");
   Shader outLine("shaderSingleColor.vs", "shaderSingleColor.fs");
+  Shader transparentShader("trans_image.vs", "trans_image.fs");
 
   // Load the models
   Model loadGround((char *)"meshes/Ground.gltf");
   Model loadChapanBox((char *)"meshes/ChapanBox.gltf");
+  Model loadZPepper((char *)"meshes/Plane.gltf");
   Grid grid;
+
+  // Simple Plane
+  float transparentVertices[] = {
+    // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+    0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+    0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+    1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+    0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+    1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+    1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+  };
+
+  // transparent VAO
+  unsigned int transparentVAO, transparentVBO;
+  glGenVertexArrays(1, &transparentVAO);
+  glGenBuffers(1, &transparentVBO);
+  glBindVertexArray(transparentVAO);
+  glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glBindVertexArray(0);
 
   // Nuklear UI init with glfw3
   // --------------------------------------------------------------------------
@@ -45,6 +77,20 @@ int main() {
   // Initialize camera with proper starting position
   camera.Position = glm::vec3(0.0f, 0.3f, 1.0f);  // Back a bit from the model
 
+  // load textures
+  // -------------
+  unsigned int transparentTexture = loadTexture((char *)"pictures/Green-window.png");
+  // -------------
+ 
+  std::vector<glm::vec3> z_pepper {
+    glm::vec3(-1.5f, 0.5f, 2.48f),
+    glm::vec3( 1.5f, 0.5f, 2.51f),
+    glm::vec3( 0.0f, 0.5f, 2.7f),
+    glm::vec3(-0.3f, 0.5f, 2.3f),
+    glm::vec3 (0.5f, 0.5f, 2.6f)
+  };
+
+  transparentShader.setInt("texture1", 0);
   while (!glfwWindowShouldClose(window)) {
     GLfloat currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
@@ -59,6 +105,8 @@ int main() {
     // Clear buffers
     glClearColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthFunc(GL_LESS);
 
     glEnable(GL_STENCIL_TEST);
@@ -77,6 +125,14 @@ int main() {
     GLfloat lightPower = lt_power;
     glm::vec3 viewPos = glm::vec3(camera.Position);
     glm::mat4 chapanBoxModel = glm::mat4(1.0f);
+
+    // sort the transparent windows before rendering
+    // ---------------------------------------------
+    std::map<float, glm::vec3> sorted;
+    for (unsigned int i = 0; i < z_pepper.size(); i++) {
+      float distance = glm::length(camera.Position - z_pepper[i]);
+      sorted[distance] = z_pepper[i];
+    }
 
     // Grid section
     if (show_grid == true) {
@@ -160,6 +216,27 @@ int main() {
       chapanBox.setMat4("model", chapanBoxModel);
       loadChapanBox.Draw(chapanBox);
     }
+
+    // Draw window or peppers
+    // -------------------
+    glBindVertexArray(transparentVAO);
+    glBindTexture(GL_TEXTURE_2D, transparentTexture);
+    transparentShader.use();
+
+    // for (unsigned int i = 0; i < z_pepper.size(); i++) {
+    for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it) {
+      transparentShader.setMat4("view", view);
+      transparentShader.setMat4("projection", projection);
+  
+      // Reset model matrix for each plane
+      glm::mat4 zpepperModel = glm::mat4(1.0f);
+      zpepperModel = glm::scale(zpepperModel, glm::vec3(0.2f));
+      zpepperModel = glm::translate(zpepperModel, it->second);
+  
+      transparentShader.setMat4("model", zpepperModel);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+    // -------------------
     // ------------------------------------------------------------------------
 
     // Swap buffers
@@ -171,4 +248,38 @@ int main() {
   glfwTerminate();
 
   return 0;
+}
+
+unsigned int loadTexture(char const * path) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data) {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }

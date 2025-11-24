@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "found_libs.hpp"
 #include "mesh.hpp"
 #include "shader.cpp"
 
