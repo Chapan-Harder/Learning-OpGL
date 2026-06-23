@@ -26,8 +26,8 @@ int main() {
 
   // Load the models
   Model loadGround((char *)"meshes/Ground.gltf");
-  Model loadChapanBox((char *)"meshes/ChapanBox.gltf");
-  Model loadZPepper((char *)"meshes/Plane.gltf");
+  Model loadChapanBox((char *)"meshes/ChapanBox.obj");
+  // Model loadZPepper((char *)"meshes/Plane.gltf");
   Grid grid;
 
   // Simple Plane
@@ -79,7 +79,7 @@ int main() {
 
   // load textures
   // -------------
-  unsigned int transparentTexture = loadTexture((char *)"pictures/Green-window.png");
+  unsigned int transparentTexture = loadTexture((char *)"pictures/z Pepper.png");
   // -------------
  
   std::vector<glm::vec3> z_pepper {
@@ -104,6 +104,8 @@ int main() {
 
     // Clear buffers
     glClearColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
