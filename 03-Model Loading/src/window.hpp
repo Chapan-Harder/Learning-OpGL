@@ -30,6 +30,7 @@ public:
 GLFWwindow *Create_Window::create_window(const char *title) {
   GLuint screenWidth, screenHeight;
 
+  glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
   // Initialize GLFW
   glfwInit();
 

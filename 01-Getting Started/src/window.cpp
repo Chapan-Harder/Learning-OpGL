@@ -7,6 +7,7 @@ GLint width = 640, height = 360;
 // GLint width = 320, height = 180;
 
 GLFWwindow *createWindow(const char* title) {
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     glfwInit(); // Initialize GLFW
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

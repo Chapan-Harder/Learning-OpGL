@@ -33,12 +33,14 @@ int main(){
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glewExperimental = GL_TRUE;
-
-    if (GLEW_OK != glewInit()){
-        std::cout << "\tFailed to initionalize GLEW" << std::endl;
-
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        std::cout << "GLEW initialization failed: " 
+                  << glewGetErrorString(err) << std::endl;
         return -1;
     }
+    // Consume the harmless GL_INVALID_ENUM that sometimes appears in core profile
+    glGetError();
 
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
 

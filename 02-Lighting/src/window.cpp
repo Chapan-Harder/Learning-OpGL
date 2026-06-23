@@ -24,6 +24,7 @@ void framebuffer_size_callback(GLFWwindow *window, GLint WIDTH, GLint HEIGHT){
 GLFWwindow * createMyWindow(const char *title){
     GLint screenWidth, screenHeight;
 
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     glfwInit(); // Initialize GLFW
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
